@@ -1,0 +1,35 @@
+{
+    "name": "sfinktah/turn14-scrape-client",
+    "description": "connect to scraping client via gearman",
+    "keywords": [],
+    "license": "private",
+    "authors": [
+        {
+            "name": "Christopher Anderson",
+            "email": "sfinktah@github.spamtrak.org"
+        }
+    ],
+    "require": {
+        "php": "^7.2|^8.0",
+        "ext-gearman": "*"
+
+    },
+    "require-dev": {
+    },
+    "suggest": {
+    },
+    "autoload": {
+        "psr-4": {
+            "Sfinktah\\Gearman\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
