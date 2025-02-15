@@ -1,3 +1,3 @@
 ```
-Private Usage
+Private Usage.
 ```
