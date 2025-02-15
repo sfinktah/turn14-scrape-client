@@ -2,7 +2,7 @@
     "name": "sfinktah/turn14-scrape-client",
     "description": "connect to scraping client via gearman",
     "keywords": [],
-    "license": "private",
+    "license": "MIT",
     "authors": [
         {
             "name": "Christopher Anderson",
