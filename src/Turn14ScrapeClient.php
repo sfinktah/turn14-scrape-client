@@ -44,7 +44,7 @@ class Turn14ScrapeClient
         }
     }
 
-    public function scrape($sku, callable $callback, mixed $callbackData) {
+    public function scrape($sku, ?callable $callback, mixed $callbackData) {
         $cacheKey = "turn14-1-$sku";
         $result = MarkleCache::remember($cacheKey, 86400 * 7, function () use ($sku) {
             return $this->callGearman($sku);
