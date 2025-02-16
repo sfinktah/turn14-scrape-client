@@ -57,7 +57,13 @@ class Turn14ScrapeClient
                 // reset timeout
                 MarkleCache::put($cacheKey, $result, 86400 * 7);
             }
-            $j['data'] = array_merge(...$j['data']);
+            if (isset($j['data']) && is_array($j['data'])) {
+                // Filter out non-array elements to ensure array_merge doesn't encounter unexpected items
+                $j['data'] = array_merge(...array_filter($j['data'], 'is_array'));
+            } else {
+                // If $j['data'] is not a valid array, set it to an empty array
+                $j['data'] = [];
+            }
         } catch (Exception $e) {
             return $this->scrapeError("Exception" . $e->getMessage());
         }
