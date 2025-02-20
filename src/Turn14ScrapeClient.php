@@ -45,7 +45,7 @@ class Turn14ScrapeClient
     }
 
     public function scrape($sku, ?callable $callback, mixed $callbackData) {
-        $cacheKey = "turn14-1-$sku";
+        $cacheKey = "turn14-7-$sku";
         $result = MarkleCache::remember($cacheKey, 86400 * 7, function () use ($sku) {
             return $this->callGearman($sku);
         });
@@ -59,10 +59,24 @@ class Turn14ScrapeClient
             }
             if (isset($j['data']) && is_array($j['data'])) {
                 // Filter out non-array elements to ensure array_merge doesn't encounter unexpected items
-                $j['data'] = array_merge(...array_filter($j['data'], 'is_array'));
+                $flattened = [];
+                if (is_array($j['data'])) {
+                    foreach ($j['data'] as $key => $dataItem) {
+                        if (is_array($dataItem)) {
+                            $flattened = array_merge($flattened, $dataItem);
+                        }
+                        else {
+                            $flattened[$key] = $dataItem;
+                        }
+                    }
+                }
+
+                $j['data'] = $flattened;
+                // $j['data'] = array_merge(...$j['data']);
+                // $j['data'] = array_merge(...array_filter($j['data'], 'is_array'));
             } else {
                 // If $j['data'] is not a valid array, set it to an empty array
-                $j['data'] = [];
+                # $j['data'] = [];
             }
         } catch (Exception $e) {
             return $this->scrapeError("Exception" . $e->getMessage());
@@ -86,3 +100,4 @@ class Turn14ScrapeClient
         }
     }
 }
+
