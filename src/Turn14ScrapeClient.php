@@ -46,41 +46,42 @@ class Turn14ScrapeClient
 
     public function scrape($sku, ?callable $callback, mixed $callbackData) {
         $cacheKey = "turn14-7-$sku";
+        $isCached = MarkleCache::has($cacheKey); // Check if the result is in the cache
+
         $result = MarkleCache::remember($cacheKey, 86400 * 7, function () use ($sku) {
             return $this->callGearman($sku);
         });
+
         try {
             $j = json_decode($result, true);
+
             if (empty($j['success'])) {
                 MarkleCache::forget($cacheKey);
+                $isCached = false; // Mark as not cached if the result fails
             } else {
-                // reset timeout
+                // Reset timeout
                 MarkleCache::put($cacheKey, $result, 86400 * 7);
             }
+
             if (isset($j['data']) && is_array($j['data'])) {
                 // Filter out non-array elements to ensure array_merge doesn't encounter unexpected items
                 $flattened = [];
-                if (is_array($j['data'])) {
-                    foreach ($j['data'] as $key => $dataItem) {
-                        if (is_array($dataItem)) {
-                            $flattened = array_merge($flattened, $dataItem);
-                        }
-                        else {
-                            $flattened[$key] = $dataItem;
-                        }
+                foreach ($j['data'] as $key => $dataItem) {
+                    if (is_array($dataItem)) {
+                        $flattened = array_merge($flattened, $dataItem);
+                    } else {
+                        $flattened[$key] = $dataItem;
                     }
                 }
 
                 $j['data'] = $flattened;
-                // $j['data'] = array_merge(...$j['data']);
-                // $j['data'] = array_merge(...array_filter($j['data'], 'is_array'));
-            } else {
-                // If $j['data'] is not a valid array, set it to an empty array
-                # $j['data'] = [];
             }
         } catch (Exception $e) {
-            return $this->scrapeError("Exception" . $e->getMessage());
+            return $this->scrapeError("Exception: " . $e->getMessage());
         }
+
+        // Modify the result to include the `cached` property
+        $j['cached'] = $isCached;
 
         if (!empty($callback) and is_callable($callback)) {
             return $callback($j, $callbackData);
